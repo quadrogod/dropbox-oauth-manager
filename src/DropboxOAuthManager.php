@@ -71,6 +71,72 @@ class DropboxOAuthManager
         }
     }
 
+    public function checkAndRefreshToken(callable $onRefreshSuccess = null, callable $onRefreshError = null)
+    {
+        if (!file_exists($this->tokenFile)) {
+            $this->setLastMesssage('Token File Not Found.');
+            return false;
+        }
+
+        $tokenData = json_decode(file_get_contents($this->tokenFile), true);
+        if (!isset($tokenData['refresh_token'])) {
+            $this->setLastMesssage('refresh_token Not Found.');
+            return false;
+        }
+
+        if (isset($tokenData['expires_in'])) {
+            $createdAt = filemtime($this->tokenFile);
+            $expiresAt = $createdAt + $tokenData['expires_in'];
+            if (time() < ($expiresAt - $this->tokenBufferSeconds)) {
+                $this->setLastMesssage(
+                    'Token update not required. Verification time: ' . date('Y-m-d H:i:s') . ';'
+                    . '<br>Expires at: ' . date('Y-m-d H:i:s', $expiresAt)
+                    . '<br>Last refreshed at: ' . date('Y-m-d H:i:s', $createdAt)
+                    . '<br>Token lifetime: ' . $tokenData['expires_in'] . ' seconds.'
+                );
+                return true;
+            }
+        }
+
+        return $this->refreshToken($tokenData['refresh_token'], $onRefreshSuccess, $onRefreshError);
+    }
+
+    public function refreshToken($refreshToken, callable $onSuccess = null, callable $onError = null)
+    {
+        $data = [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken,
+            'client_id' => $this->clientId,
+            'client_secret' => $this->clientSecret,
+        ];
+
+        $response = $this->httpPost('https://api.dropboxapi.com/oauth2/token', $data);
+        $newToken = json_decode($response, true);
+
+        if (isset($newToken['access_token'])) {
+            $tokens = $oldData = json_decode(file_get_contents($this->tokenFile), true);
+            foreach ($tokens as $key => $value) {
+                if (isset($newToken[$key])) {
+                    $tokens[$key] = $newToken[$key];
+                }
+            }
+
+            if ($onSuccess) {
+                return call_user_func($onSuccess, $newToken, $oldData);
+            } else {
+                file_put_contents($this->tokenFile, json_encode($tokens, JSON_PRETTY_PRINT));
+                return true;
+            }
+        }
+
+        if ($onError) {
+            return call_user_func($onError, $response);
+        } else {
+            $this->setLastMesssage('Not Found access_token.');
+            return false;
+        }
+    }
+
     private function httpPost($url, $postData)
     {
         $ch = curl_init($url);
