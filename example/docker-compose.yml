@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  php:
+    build: ./php74-apache
+    volumes:
+      - .:/var/www/html
+      - ./..:/var/www/dropbox-oauth-manager
+    ports:
+      - 80:80
+    environment:
+      XDEBUG_CONFIG: remote_host=host.docker.internal

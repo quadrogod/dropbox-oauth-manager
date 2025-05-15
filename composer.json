@@ -1,0 +1,27 @@
+{
+  "name": "quadrogod/dropbox-oauth-manager",
+  "description": "Simple Dropbox OAuth Manager",
+  "keywords": [
+    "dropbox",
+    "oauth",
+    "token",
+    "php"
+  ],
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alex Molchanov"
+    }
+  ],
+  "require": {
+    "lib-curl": "*",
+    "php": "^7.2 || ^8.0",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Quadrogod\\DropboxManager\\": "src/"
+    }
+  }
+}

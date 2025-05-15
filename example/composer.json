@@ -1,0 +1,23 @@
+{
+  "name": "quadrogod/dropbox-oauth-manager-example",
+  "description": "Simple Dropbox OAuth Manager Example",
+  "minimum-stability": "dev",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Alex Molchanov"
+    }
+  ],
+  "require": {
+    "quadrogod/dropbox-oauth-manager": "*"
+  },
+  "repositories": [
+    {
+      "type": "path",
+      "url": "./../dropbox-oauth-manager",
+      "options": {
+        "symlink": true
+      }
+    }
+  ]
+}
