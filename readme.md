@@ -59,6 +59,17 @@ To simplify testing, a `Docker` environment is included. To start the example:
 ```bash
 cd example && docker-compose up -d
 ```
+or
+```bash
+docker compose up -d
+```
+
+Now you need to enter the created container and install the dependencies.
+```bash
+docker ps
+docker exec -it example_php_1 bash
+composer install
+```
 
 Then open [http://localhost](http://localhost) in your browser.
 
